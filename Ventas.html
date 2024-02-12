@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script>
+        var salesData = '';
+
+        function generator() {
+
+            var num = document.getElementById("ea").value;
+            salesData = `USE punto_venta;<br>
+            TRUNCATE sales_details;<br>
+            DELETE FROM sales;<br>
+            INSERT INTO sales(ID, date, time)VALUES <br>(1,'`
+            + generateRandomDate() + "', '" + generateRandomTime() + "'),";
+
+            for (let index = 2; index <= num; index++) {
+                salesData += "<br>( "+index+" , '" + generateRandomDate()
+                + "' , '" + generateRandomTime() + "'),";
+            }
+
+            // Validate and adjust the last character
+            if (salesData.endsWith(',')) {
+                salesData = salesData.slice(0, -1) + ';';
+            }
+            salesData += `<br>INSERT INTO sales_details(sales_id, product_id) VALUES
+            `;
+
+
+            for (let i = 1; i <= num; i++) {
+                var salesId = Math.floor(Math.random() * 10);
+                for (let j = 0; j < salesId; j++) {
+                    salesData += "<br>( "+i+","+Math.floor(1+(Math.random() * 10))+" ),";
+
+                }
+            }
+            if (salesData.endsWith(',')) {
+                salesData = salesData.slice(0, -1) + ';';
+            }
+            document.getElementById("output").innerHTML = salesData;
+        }
+
+
+
+        function generateRandomDate() {
+            var year = Math.floor(Math.random() * (2022 - 2000 + 1)) + 2000;
+            var month = Math.floor(Math.random() * 12) + 1;
+            var day = Math.floor(Math.random() * 31) + 1;
+            var hour = Math.floor(Math.random() * 24);
+            var minute = Math.floor(Math.random() * 60);
+            var second = Math.floor(Math.random() * 60);
+
+            // Create Date object with random values
+            var randomDate = new Date(year, month - 1, day, hour, minute, second);
+
+            // Format the date in the desired format (Year-Month-Day)
+            var formattedDate = randomDate.toISOString().split('T')[0];
+
+            return formattedDate;
+        }
+
+        function generateRandomTime() {
+            // Generate random hours, minutes, and seconds
+            var hours = Math.floor(Math.random() * 24); // 0 to 23
+            var minutes = Math.floor(Math.random() * 60); // 0 to 59
+            var seconds = Math.floor(Math.random() * 60); // 0 to 59
+
+            // Format the time in HH:MM:SS format
+            var formattedTime = padLeft(hours) + ":" + padLeft(minutes) + ":" + padLeft(seconds);
+
+            return formattedTime;
+        }
+
+        // Helper function to left pad with zeros
+        function padLeft(number) {
+            return number < 10 ? "0" + number : number;
+        }
+
+        function generateSQL(){
+
+            var file = document.createElement('a');
+            var outputSQL = salesData.replace(/<br>/g, '\n').trim();
+
+            file.setAttribute('href', 'data:text/plain;charset=utf-8,'
+            + encodeURIComponent(outputSQL));
+            file.setAttribute('download', 'sales_data.sql');
+
+            file.style.display = 'none';
+
+            document.body.appendChild(file);
+
+            file.click();
+
+            document.body.removeChild(file);
+
+        }
+
+    </script>
+</head>
+
+<body>
+<label for="ea">Enter number of records:</label>
+<input type="number" id="ea">
+<button onclick="generator()">Generate</button>
+<button onclick="generateSQL()">Generate SQL</button>
+<div id="output"></div>
+</body>
+
+</html>
